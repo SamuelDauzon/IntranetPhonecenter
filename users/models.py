@@ -63,7 +63,7 @@ class TeamMember(BaseModel):
         )
 
     def __str__(self):
-        return str(self.teammember)
+        return "%s (support_level : %d)" % (str(self.teammember), self.support_level)
 
 
 class Customer(BaseModel):
@@ -79,4 +79,4 @@ class Customer(BaseModel):
         )
 
     def __str__(self):
-        return str(self.teammember)
+        return "%s (credits : %d)" % (str(self.customer), self.credits)
