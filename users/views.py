@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .forms import RegisterForm
+from .forms import RegisterForm, AccountSettingsForm
 from .models import UserProfile
 
 # View
@@ -22,7 +22,7 @@ def hello(request):
 
 def register(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("users:hello"))
+        return HttpResponseRedirect(reverse("users:myaccount"))
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -36,7 +36,7 @@ def register(request):
             )
             user.save()
             login(request, user)
-            return HttpResponseRedirect(reverse("users:hello"))
+            return HttpResponseRedirect(reverse("users:myaccount"))
     else:
         form = RegisterForm()
     return render(
@@ -56,7 +56,7 @@ def logout_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("users:hello"))
+        return HttpResponseRedirect(reverse("users:myaccount"))
     elif 'username' in request.POST and 'password' in request.POST:
         username = request.POST['username']
         password = request.POST['password']
@@ -66,7 +66,7 @@ def login_view(request):
             if request.GET.get('next') is not None:
                 return redirect(request.GET['next'])
             else:
-                return HttpResponseRedirect(reverse("users:hello"))
+                return HttpResponseRedirect(reverse("users:myaccount"))
         else:
             return render(
                 request,
@@ -81,4 +81,31 @@ def login_view(request):
             'users/login.html',
             {}
         )
+
+@login_required
+def myaccount(request):
+    return render(
+        request,
+        'users/myaccount.html',
+    )
+
+@login_required
+def account_settings(request):
+    if request.method == 'POST':
+        form = AccountSettingsForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+    else:
+        form = AccountSettingsForm(instance=request.user)
+    return render(
+        request,
+        'utils/form.html',
+        {
+            'url_form': reverse("users:register"),
+            'title': "Inscription",
+            'form':form,
+        }
+    )
+
+
 
